@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: resource-server
+  name: svc-cloud-resourceserver
+  namespace: k8s-test
+spec:
+  ports:
+    - name: bdbdse #
+      nodePort: 32000 #物理机端口号
+      port: 8000 #服务端口
+      protocol: TCP #端口协议,默认TCP
+      targetPort: 8000 #pod端口
+  selector:
+    app: resource-server
+  sessionAffinity: None #是否支持session
+  type: NodePort
+

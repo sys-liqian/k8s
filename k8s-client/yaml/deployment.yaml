@@ -1,0 +1,33 @@
+apiVersion: apps/v1 #指定api版本
+kind: Deployment #指定资源类型
+metadata:
+  name: svc-cloud-resourceserver #资源名称-namespace下唯一
+  namespace: k8s-test #指定命名空间
+  labels: #定义资源标签key-value对
+    app: resource-server
+spec:
+  progressDeadlineSeconds: 600
+  #副本数量
+  replicas: 1
+  #最大历史副本数量
+  revisionHistoryLimit: 3
+  selector: #标签选择器
+    matchLabels: #定义匹配标签,需要与metadata中配置的labels保持一直（包括个数,名称）
+      app: resource-server
+  template: #定义模板,如果有多个副本,会按照此模板配置进行匹配
+    metadata:
+      labels:
+        app: resource-server
+    spec:
+      containers: #定义工作容器属性
+        - command: #定义程序command
+            - ./resourceServer
+            - '-port'
+            - '8000'
+          image: 'registry.dockerhub.com/cloud/resourceserver:v0.1.1' #docker镜像
+          imagePullPolicy: Always #镜像拉取策略
+          name: resourceserver #容器名称
+      imagePullSecrets: #镜像拉取Secret
+        - name: docker-harbor
+      restartPolicy: Always
+

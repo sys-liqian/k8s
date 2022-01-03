@@ -1,0 +1,10 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: test-storage
+parameters:
+  archiveOnDelete: 'false'
+provisioner: nfs-test-storage #nfs没有内部分配器，使用外部分配器
+reclaimPolicy: Retain #回收策略 Retain:回收后保留，Delete:回收后删除（默认）
+volumeBindingMode: WaitForFirstConsumer #存储卷绑定方式 WaitForFirstConsumer：首次使用时绑定
+
