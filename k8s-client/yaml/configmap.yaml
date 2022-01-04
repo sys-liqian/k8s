@@ -1,0 +1,21 @@
+apiVersion: v1
+data:
+  default.conf: "server {\n
+                 	listen       81;\n
+                 	server_name  localhost;\n
+                 	add_header Access-Control-Allow-Origin *;\n
+                 	add_header Access-Control-Allow-Headers X-Requested-With;\n
+                 	add_header Access-Control-Allow-Methods GET,POST,OPTIONS;\n
+                         	location / {\n
+                             		root   html;\n
+                             		index  index.html index.htm;\n
+                         	}\n
+                         	error_page   500 502 503 504  /50x.html;\n
+                         	location = /50x.html {\n
+                             		root   html;\n
+                        	}\n
+                 }\n"
+kind: ConfigMap
+metadata:
+  name: nginx-config #configmap名称
+  namespace: k8s-test #指定命名空间
