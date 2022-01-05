@@ -126,8 +126,7 @@ func createOrUpdateSecret(clientSet *kubernetes.Clientset) {
 			Namespace: TestNamespace,
 		},
 		StringData: map[string]string{
-			core_v1.DockerConfigJsonKey:
-			"{\"auths\":{\"https://registry.dockerhubar.com/\":{\"username\":\"admin\",\"password\":\"123456\"}}}",
+			core_v1.DockerConfigJsonKey: "{\"auths\":{\"https://registry.dockerhubar.com/\":{\"username\":\"admin\",\"password\":\"123456\"}}}",
 		},
 		Type: core_v1.SecretTypeDockerConfigJson,
 	}
@@ -312,7 +311,7 @@ func deleteService(clientSet *kubernetes.Clientset) {
 	源码位置:K8s.io/client-go/kubernetes/typed/storage/v1/storageclass.go
 */
 func createOrUpdateStorage(clientSet *kubernetes.Clientset) {
-	yamlFile, err := ioutil.ReadFile("./yaml/storageclass.yaml")
+	yamlFile, err := ioutil.ReadFile("./yaml/storageClass.yaml")
 	if err != nil {
 		panic(err)
 	}
@@ -346,7 +345,7 @@ func createOrUpdateStorage(clientSet *kubernetes.Clientset) {
 	源码位置:K8s.io/client-go/kubernetes/typed/core/v1/configmap.go
 */
 func createOrUpdateConfigMap(clientSet *kubernetes.Clientset) {
-	yamlFile, err := ioutil.ReadFile("./yaml/configmap.yaml")
+	yamlFile, err := ioutil.ReadFile("./yaml/configMap.yaml")
 	if err != nil {
 		panic(err)
 	}

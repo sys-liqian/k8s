@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: test-pv
+spec:
+  accessModes: #访问模型 ReadWriteOnce-只能被单个Node挂载 ReadOnlyMany-只读，允许被多个Node挂载
+    - ReadWriteMany #读写权限，允许多个Node挂载
+  capacity: #容量
+    storage: 1Gi
+  persistentVolumeReclaimPolicy: Retain #回收策略 Retain-保留 Recycle-回收空间 Delete-删除
+  nfs:
+    path: /home/nfs/test-pv #nfs路径
+    server: 192.168.2.111
+  storageClassName: test-storage-class #指定storageClass名称
+  volumeMode: Filesystem
