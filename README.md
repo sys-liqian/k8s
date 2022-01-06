@@ -334,3 +334,17 @@ kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 ![get-pods](./static/get-pods.png)
 
 
+
+## 常见问题解决
+
+### 1.20版本之后NFS无法使用
+
+原因是k8s-v1.20之后默认删除了**metadata.selfLink**字段，**nfs-client-provisioner**需要该字段
+
+解决方法：修改**/etc/kubernetes/manifests/kube-apiserver.yaml**
+
+增加启动命令：**--feature-gates=RemoveSelfLink=false**
+
+kubelet会监听该文件，修改后立刻生效，如果有多个master,需要每个master保持一致
+
+![nfs-error](./static/nfs-error.png)
