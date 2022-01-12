@@ -1,7 +1,7 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: test-storage-class
+  name: test-storage-class #指定storageClass名称
 parameters:
   archiveOnDelete: 'false'
 provisioner: nfs-test-storage #nfs没有内部分配器，使用外部分配器

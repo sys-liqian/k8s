@@ -17,5 +17,5 @@ data:
                  }\n"
 kind: ConfigMap
 metadata:
-  name: nginx-config #configmap名称即 key
-  namespace: k8s-test #指定命名空间
+  name: test-configmap-nginx #configmap名称即 key
+  namespace: test-namespace #指定命名空间

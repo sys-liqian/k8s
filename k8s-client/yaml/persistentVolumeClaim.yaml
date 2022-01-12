@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: test-pvc
-  namespace: test-k8s
+  name: test-pvc #pvc名称
+  namespace: test-namespace #命名空间
 spec:
   accessModes:
-    - ReadWriteMany
+    - ReadWriteMany #读写模式 RWM
   resources:
     requests:
-      storage: 1Gi
-  storageClassName: test-storage-class
+      storage: 1Gi #申请容量
+  storageClassName: test-storage-class #指定storageClass名称
   volumeMode: Filesystem
 

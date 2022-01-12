@@ -1,7 +1,7 @@
 kind: Namespace
 apiVersion: v1
 metadata:
-  name: k8s-test
+  name: test-namespace
 
 
 

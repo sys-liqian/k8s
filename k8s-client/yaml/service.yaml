@@ -2,18 +2,18 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: resource-server
-  name: svc-cloud-resourceserver
-  namespace: k8s-test
+    app: test-nginx
+  name: test-nginx #与Deployment同名
+  namespace: test-namespace #指定namespace
 spec:
   ports:
-    - name: bdbdse #
+    - name: bdbdse #端口名称字符串
       nodePort: 32000 #物理机端口号
-      port: 8000 #服务端口
+      port: 81 #服务端口
       protocol: TCP #端口协议,默认TCP
-      targetPort: 8000 #pod端口
+      targetPort: 81 #pod端口
   selector:
-    app: resource-server
+    app: test-nginx
   sessionAffinity: None #是否支持session
   type: NodePort
 

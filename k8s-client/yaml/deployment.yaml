@@ -1,10 +1,10 @@
 apiVersion: apps/v1 #指定api版本
 kind: Deployment #指定资源类型
 metadata:
-  name: svc-cloud-resourceserver #资源名称-namespace下唯一
-  namespace: k8s-test #指定命名空间
+  name: test-nginx #资源名称-namespace下唯一
+  namespace: test-namespace #指定命名空间
   labels: #定义资源标签key-value对
-    app: resource-server
+    app: test-nginx
 spec:
   progressDeadlineSeconds: 600
   #副本数量
@@ -13,21 +13,30 @@ spec:
   revisionHistoryLimit: 3
   selector: #标签选择器
     matchLabels: #定义匹配标签,需要与metadata中配置的labels保持一直（包括个数,名称）
-      app: resource-server
+      app: test-nginx
   template: #定义模板,如果有多个副本,会按照此模板配置进行匹配
     metadata:
       labels:
-        app: resource-server
+        app: test-nginx
     spec:
       containers: #定义工作容器属性
-        - command: #定义程序command
-            - ./resourceServer
-            - '-port'
-            - '8000'
-          image: 'registry.dockerhub.com/cloud/resourceserver:v0.1.1' #docker镜像
-          imagePullPolicy: Always #镜像拉取策略
-          name: resourceserver #容器名称
-      imagePullSecrets: #镜像拉取Secret
-        - name: docker-harbor
-      restartPolicy: Always
+        - image: 'nginx' #docker镜像
+          imagePullPolicy: IfNotPresent #镜像拉取策略
+          name: test-nginx-container #容器名称
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d #挂载到容器中的绝对路径,将nginx-conf数据卷挂载到/etc/nginx/conf.d
+              name: nginx-conf #引用数据卷名称
+            - mountPath: /etc/nginx/html #将vol数据卷挂载到/etc/nginx/html
+              name: vol
+#      imagePullSecrets: #镜像拉取Secret,如果是私有镜像库则需要该配置
+#        - name: harbor-key
+      restartPolicy: Always #重启策略
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: test-configmap-nginx #指定使用configmap的名称
+          name: nginx-conf #定义数据卷名称
+        - name: vol #定义数据卷名称
+          persistentVolumeClaim:
+            claimName: test-pvc #指定要使用的pvc名称
 

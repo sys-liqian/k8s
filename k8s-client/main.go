@@ -21,32 +21,44 @@ import (
 */
 
 const (
-	TestNamespace           = "k8s-test"      //测试使用的命名空间
-	TestDockerConfigJsonKey = "docker-harbor" //docker仓库密文key
+	TestNamespace           = "test-namespace" //测试使用的命名空间
+	TestDockerConfigJsonKey = "docker-harbor"  //docker仓库密文key
 )
 
 func main() {
 	clientSet := initClient()
-	//namespace
-	createOrUpdateNamespace(clientSet)
-	listNamespace(clientSet)
-	deleteNamespace(clientSet)
-	//secret
-	createOrUpdateSecret(clientSet)
-	listSecret(clientSet)
-	deleteSecret(clientSet)
-	//deployment
-	createOrUpdateDeployment(clientSet)
-	listDeployment(clientSet)
-	deleteDeployment(clientSet)
-	//service
-	createOrUpdateService(clientSet)
-	listService(clientSet)
-	deleteService(clientSet)
-	//storage
-	createOrUpdateStorage(clientSet)
-	//configmap
 
+	//createOrUpdateNamespace(clientSet)
+	//listNamespace(clientSet)
+	//deleteNamespace(clientSet)
+
+	//createOrUpdateConfigMap(clientSet)
+	//listConfigMap(clientSet)
+	//deleteConfigMap(clientSet)
+
+	//createOrUpdateSecret(clientSet)
+	//listSecret(clientSet)
+	//deleteSecret(clientSet)
+
+	createOrUpdateDeployment(clientSet)
+	//listDeployment(clientSet)
+	//deleteDeployment(clientSet)
+
+	//createOrUpdateService(clientSet)
+	//listService(clientSet)
+	//deleteService(clientSet)
+
+	//createOrUpdateStorage(clientSet)
+	//listStorage(clientSet)
+	//deleteStorage(clientSet)
+
+	//createOrUpdatePV(clientSet)
+	//listPV(clientSet)
+	//deletePV(clientSet)
+
+	//createOrUpdatePVC(clientSet)
+	//listPVC(clientSet)
+	//deletePVC(clientSet)
 }
 
 /*
@@ -332,10 +344,38 @@ func createOrUpdateStorage(clientSet *kubernetes.Clientset) {
 		}
 		panic(err)
 	}
-	//if _, err := client.Update(context.TODO(), existService, meta_v1.UpdateOptions{}); err != nil {
-	//	panic(err)
-	//}
-	//fmt.Println("service更新成功")
+	if _, err := client.Update(context.TODO(), &storageClass, meta_v1.UpdateOptions{}); err != nil {
+		panic(err)
+	}
+	fmt.Println("StorageClass更新成功")
+}
+
+/*
+  获取storageClass列表
+*/
+func listStorage(clientSet *kubernetes.Clientset) {
+	client := clientSet.StorageV1().StorageClasses()
+	storageClassList, err := client.List(context.TODO(), meta_v1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	marshal, _ := json.Marshal(storageClassList)
+	fmt.Println(string(marshal))
+}
+
+/*
+	删除storageClass
+*/
+func deleteStorage(clientSet *kubernetes.Clientset) {
+	client := clientSet.StorageV1().StorageClasses()
+	deletePolicy := meta_v1.DeletePropagationForeground
+	err := client.Delete(context.TODO(), "test-storage-class", meta_v1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("StorageClass删除成功")
 }
 
 //*************************分割线****************************
@@ -391,7 +431,7 @@ func listConfigMap(clientSet *kubernetes.Clientset) {
 func deleteConfigMap(clientSet *kubernetes.Clientset) {
 	client := clientSet.CoreV1().ConfigMaps(TestNamespace)
 	deletePolicy := meta_v1.DeletePropagationForeground
-	err := client.Delete(context.TODO(), "nginx-config", meta_v1.DeleteOptions{
+	err := client.Delete(context.TODO(), "test-configmap-nginx", meta_v1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	})
 	if err != nil {
@@ -399,6 +439,132 @@ func deleteConfigMap(clientSet *kubernetes.Clientset) {
 	}
 	fmt.Println("ConfigMap删除成功")
 }
+
+//*************************分割线****************************
+
+/*
+    创建PersistentVolume,已存在则更新
+	源码位置:K8s.io/client-go/kubernetes/typed/core/v1/persistentvolume.go
+*/
+func createOrUpdatePV(clientSet *kubernetes.Clientset) {
+	yamlFile, err := ioutil.ReadFile("./yaml/persistentVolume.yaml")
+	if err != nil {
+		panic(err)
+	}
+	jsonBytes := yaml2Json(yamlFile)
+	pv := core_v1.PersistentVolume{}
+	err = json.Unmarshal(jsonBytes, &pv)
+	if err != nil {
+		panic(err)
+	}
+	client := clientSet.CoreV1().PersistentVolumes()
+	if _, err := client.Get(context.TODO(), pv.ObjectMeta.Name, meta_v1.GetOptions{}); err != nil {
+		if errors.IsNotFound(err) {
+			if _, err := client.Create(context.TODO(), &pv, meta_v1.CreateOptions{}); err != nil {
+				panic(err)
+			}
+			fmt.Println("PV创建成功")
+			return
+		}
+		panic(err)
+	}
+	if _, err := client.Update(context.TODO(), &pv, meta_v1.UpdateOptions{}); err != nil {
+		panic(err)
+	}
+	fmt.Println("PV更新成功")
+}
+
+/*
+  获取PersistentVolume列表
+*/
+func listPV(clientSet *kubernetes.Clientset) {
+	client := clientSet.CoreV1().PersistentVolumes()
+	pvList, err := client.List(context.TODO(), meta_v1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	marshal, _ := json.Marshal(pvList)
+	fmt.Println(string(marshal))
+}
+
+/*
+	删除PersistentVolume
+*/
+func deletePV(clientSet *kubernetes.Clientset) {
+	client := clientSet.CoreV1().PersistentVolumes()
+	deletePolicy := meta_v1.DeletePropagationForeground
+	err := client.Delete(context.TODO(), "test-pv", meta_v1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("PV删除成功")
+}
+
+//*************************分割线****************************
+
+/*
+    创建PersistentVolumeClaim,已存在则更新
+	源码位置:K8s.io/client-go/kubernetes/typed/core/v1/persistentvolumeclaim.go
+*/
+func createOrUpdatePVC(clientSet *kubernetes.Clientset) {
+	yamlFile, err := ioutil.ReadFile("./yaml/persistentVolumeClaim.yaml")
+	if err != nil {
+		panic(err)
+	}
+	jsonBytes := yaml2Json(yamlFile)
+	pvc := core_v1.PersistentVolumeClaim{}
+	err = json.Unmarshal(jsonBytes, &pvc)
+	if err != nil {
+		panic(err)
+	}
+	client := clientSet.CoreV1().PersistentVolumeClaims(TestNamespace)
+	if _, err := client.Get(context.TODO(), pvc.ObjectMeta.Name, meta_v1.GetOptions{}); err != nil {
+		if errors.IsNotFound(err) {
+			if _, err := client.Create(context.TODO(), &pvc, meta_v1.CreateOptions{}); err != nil {
+				panic(err)
+			}
+			fmt.Println("PVC创建成功")
+			return
+		}
+		panic(err)
+	}
+	if _, err := client.Update(context.TODO(), &pvc, meta_v1.UpdateOptions{}); err != nil {
+		panic(err)
+	}
+	fmt.Println("PVC更新成功")
+}
+
+/*
+  获取PersistentVolumeClaim列表
+*/
+func listPVC(clientSet *kubernetes.Clientset) {
+	client := clientSet.CoreV1().PersistentVolumeClaims(TestNamespace)
+	pvList, err := client.List(context.TODO(), meta_v1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	marshal, _ := json.Marshal(pvList)
+	fmt.Println(string(marshal))
+}
+
+/*
+	删除PersistentVolumeClaim
+*/
+func deletePVC(clientSet *kubernetes.Clientset) {
+	client := clientSet.CoreV1().PersistentVolumeClaims(TestNamespace)
+	deletePolicy := meta_v1.DeletePropagationForeground
+	err := client.Delete(context.TODO(), "test-pvc", meta_v1.DeleteOptions{
+		PropagationPolicy: &deletePolicy,
+	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("PVC删除成功")
+}
+
+//*************************分割线****************************
 
 /*
    读取配置文件并且初始化客户端
