@@ -348,3 +348,18 @@ kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
 kubelet会监听该文件，修改后立刻生效，如果有多个master,需要每个master保持一致
 
 ![nfs-error](./static/nfs-error.png)
+
+
+
+### 重置集群后calico,和coredns未就绪
+
+执行kubeadm reset重置集群后
+
+执行如下命令重置网络
+
+```shell
+ sudo rm -rf /etc/cni/net.d
+ sudo ipvsadm --clear
+```
+
+然后重启主机
