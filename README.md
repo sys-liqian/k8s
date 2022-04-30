@@ -205,7 +205,7 @@ systemctl disable firewalld
 
 ```bash
 sed -i 's/enforcing/disabled/' /etc/selinux/config
-setenfore 0
+setenforce 0
 ```
 
 #### 关闭swap
